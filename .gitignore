@@ -13,3 +13,4 @@ uploads/
 .idea/
 data/neofamily_index.json
 data/neofamily_detail_cache.json
+.env*
