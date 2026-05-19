@@ -3,14 +3,16 @@ services:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8001}
-        NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${NEXT_PUBLIC_TELEGRAM_BOT_USERNAME:-}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
+        NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${NEXT_PUBLIC_TELEGRAM_BOT_USERNAME:?NEXT_PUBLIC_TELEGRAM_BOT_USERNAME is required}
     container_name: arvexo-study-frontend
     restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"
     environment:
-      NEXT_PUBLIC_API_URL: https://api.study.arvexo.ru
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
+      NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${NEXT_PUBLIC_TELEGRAM_BOT_USERNAME:?NEXT_PUBLIC_TELEGRAM_BOT_USERNAME is required}
     depends_on:
       - backend
 
@@ -20,11 +22,12 @@ services:
     container_name: arvexo-study-backend
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "127.0.0.1:8001:8000"
     env_file:
       - .env
     volumes:
       - ./data:/app/data:ro
+      - ./uploads:/app/uploads
     depends_on:
       - postgres
       - redis
@@ -45,20 +48,19 @@ services:
     container_name: arvexo-study-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: arvexo_study
-      POSTGRES_USER: arvexo
-      POSTGRES_PASSWORD: arvexo
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5434:5432"
 
   redis:
     image: redis:7-alpine
     container_name: arvexo-study-redis
     restart: unless-stopped
-    ports:
-      - "6381:6379"
+    volumes:
+      - redis-data:/data
 
 volumes:
   postgres-data:
+  redis-data:
