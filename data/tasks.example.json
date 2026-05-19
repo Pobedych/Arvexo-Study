@@ -1,0 +1,24 @@
+[
+  {
+    "exam_number": 5,
+    "topic": "Паронимы",
+    "condition": "Выберите правильный пароним для пропуска в предложении.",
+    "correct_answer": "эффектный",
+    "accepted_answers": ["эффектный"],
+    "explanation": "Эффектный значит производящий сильное впечатление.",
+    "difficulty": "medium",
+    "source": "demo",
+    "status": "active"
+  },
+  {
+    "exam_number": 9,
+    "topic": "Правописание корней",
+    "condition": "Укажите варианты ответов, в которых во всех словах пропущена одна и та же буква.",
+    "correct_answer": "25",
+    "accepted_answers": ["52"],
+    "explanation": "Если порядок не важен, второй вариант нужно явно указать в accepted_answers.",
+    "difficulty": "hard",
+    "source": "demo",
+    "status": "active"
+  }
+]
