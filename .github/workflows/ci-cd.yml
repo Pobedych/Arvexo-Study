@@ -47,7 +47,7 @@ jobs:
       run:
         working-directory: frontend
     env:
-      NEXT_PUBLIC_API_URL: http://127.0.0.1:8001
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8101
       NEXT_PUBLIC_TELEGRAM_BOT_USERNAME: arvexo_study_bot
     steps:
       - name: Checkout
@@ -79,7 +79,7 @@ jobs:
       - name: Build frontend image
         run: |
           docker build \
-            --build-arg NEXT_PUBLIC_API_URL=http://127.0.0.1:8001 \
+            --build-arg NEXT_PUBLIC_API_URL=http://127.0.0.1:8101 \
             --build-arg NEXT_PUBLIC_TELEGRAM_BOT_USERNAME=arvexo_study_bot \
             -t arvexo-study-frontend:ci ./frontend
 
@@ -110,10 +110,10 @@ jobs:
             git pull --ff-only origin main
             docker compose -f docker-compose.prod.yml --env-file .env up -d --build --remove-orphans
             for i in $(seq 1 30); do
-              if curl -fsS http://127.0.0.1:8001/health; then
+              if curl -fsS http://127.0.0.1:8101/health; then
                 break
               fi
               sleep 2
             done
             docker compose -f docker-compose.prod.yml --env-file .env exec -T backend python scripts/import_tasks.py data/task.json
-            curl -fsS http://127.0.0.1:8001/health
+            curl -fsS http://127.0.0.1:8101/health
