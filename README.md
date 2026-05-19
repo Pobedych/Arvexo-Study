@@ -63,7 +63,7 @@ The server directory must already contain a cloned repo and a production `.env` 
 docker compose -f docker-compose.prod.yml --env-file .env up -d --build --remove-orphans
 ```
 
-Nginx should proxy:
+Production Nginx should proxy:
 
-- `study.arvexo.ru` -> `127.0.0.1:3001`
-- `api.study.arvexo.ru` -> `127.0.0.1:8001`
+- `study.arvexo.ru` -> `127.0.0.1:3101`
+- `api.study.arvexo.ru` -> `127.0.0.1:8101`

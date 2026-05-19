@@ -109,11 +109,17 @@ jobs:
             git fetch origin main
             git pull --ff-only origin main
             docker compose -f docker-compose.prod.yml --env-file .env up -d --build --remove-orphans
+            healthy=0
             for i in $(seq 1 30); do
               if curl -fsS http://127.0.0.1:8101/health; then
+                healthy=1
                 break
               fi
               sleep 2
             done
-            docker compose -f docker-compose.prod.yml --env-file .env exec -T backend python scripts/import_tasks.py data/task.json
+            if [ "$healthy" -ne 1 ]; then
+              docker compose -f docker-compose.prod.yml --env-file .env logs --tail=120 backend
+              exit 1
+            fi
+            docker compose -f docker-compose.prod.yml --env-file .env exec -T backend python scripts/import_tasks.py /app/data/task.json
             curl -fsS http://127.0.0.1:8101/health
