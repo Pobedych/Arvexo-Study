@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 
 from app.api.auth import router as auth_router
 from app.api.health import router as health_router
@@ -11,6 +11,26 @@ from app.api.tasks import router as tasks_router
 from app.core.config import get_settings
 from app.core.database import Base, SessionLocal, engine
 from app.models import Task, User
+
+
+def ensure_user_profile_columns() -> None:
+    inspector = inspect(engine)
+    if "users" not in inspector.get_table_names():
+        return
+
+    existing_columns = {column["name"] for column in inspector.get_columns("users")}
+    statements = []
+    if "last_name" not in existing_columns:
+        statements.append("ALTER TABLE users ADD COLUMN last_name VARCHAR(120)")
+    if "phone" not in existing_columns:
+        statements.append("ALTER TABLE users ADD COLUMN phone VARCHAR(32)")
+
+    if not statements:
+        return
+
+    with engine.begin() as connection:
+        for statement in statements:
+            connection.execute(text(statement))
 
 
 def seed_demo_data() -> None:
@@ -55,6 +75,7 @@ def seed_demo_data() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     Base.metadata.create_all(bind=engine)
+    ensure_user_profile_columns()
     seed_demo_data()
     yield
 

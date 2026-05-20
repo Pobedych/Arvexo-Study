@@ -26,11 +26,19 @@ class UserRead(BaseModel):
     id: str
     email: str
     name: str
+    last_name: str | None = None
+    phone: str | None = None
     role: str
     avatar_url: str | None = None
     telegram_id: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class UserUpdateRequest(BaseModel):
+    name: str = Field(min_length=2, max_length=120)
+    last_name: str | None = Field(default=None, max_length=120)
+    phone: str | None = Field(default=None, max_length=32)
 
 
 class AuthResponse(BaseModel):

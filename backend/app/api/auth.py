@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.config import get_settings
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.auth import AuthResponse, LoginRequest, RegisterRequest, TelegramAuthRequest, UserRead
+from app.schemas.auth import AuthResponse, LoginRequest, RegisterRequest, TelegramAuthRequest, UserRead, UserUpdateRequest
 from app.services.auth import (
     SESSION_COOKIE,
     create_access_token,
@@ -126,3 +126,14 @@ def logout(response: Response) -> dict[str, str]:
 @router.get("/me", response_model=UserRead)
 def me(request: Request, db: Session = Depends(get_db)) -> User:
     return get_current_user(request, db)
+
+
+@router.patch("/me", response_model=UserRead)
+def update_me(payload: UserUpdateRequest, request: Request, db: Session = Depends(get_db)) -> User:
+    user = get_current_user(request, db)
+    user.name = payload.name.strip()
+    user.last_name = payload.last_name.strip() if payload.last_name and payload.last_name.strip() else None
+    user.phone = payload.phone.strip() if payload.phone and payload.phone.strip() else None
+    db.commit()
+    db.refresh(user)
+    return user

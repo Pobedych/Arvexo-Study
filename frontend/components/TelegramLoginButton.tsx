@@ -24,7 +24,12 @@ export function TelegramLoginButton() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState("");
-  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME;
+  const [isLocalHost, setIsLocalHost] = useState(false);
+  const botUsername = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME?.trim().replace(/^@/, "");
+
+  useEffect(() => {
+    setIsLocalHost(["localhost", "127.0.0.1"].includes(window.location.hostname));
+  }, []);
 
   useEffect(() => {
     window.onTelegramAuth = async (telegramUser: TelegramUser) => {
@@ -54,7 +59,7 @@ export function TelegramLoginButton() {
   }, [router]);
 
   useEffect(() => {
-    if (!botUsername || !containerRef.current) return;
+    if (!botUsername || isLocalHost || !containerRef.current) return;
 
     containerRef.current.innerHTML = "";
     const script = document.createElement("script");
@@ -67,13 +72,22 @@ export function TelegramLoginButton() {
     script.setAttribute("data-request-access", "write");
     script.setAttribute("data-onauth", "onTelegramAuth(user)");
     containerRef.current.appendChild(script);
-  }, [botUsername]);
+  }, [botUsername, isLocalHost]);
 
   if (!botUsername) {
     return (
       <div className="telegram-login-placeholder">
         <span>Telegram не настроен</span>
         <small>Добавь NEXT_PUBLIC_TELEGRAM_BOT_USERNAME</small>
+      </div>
+    );
+  }
+
+  if (isLocalHost) {
+    return (
+      <div className="telegram-login-placeholder">
+        <span>Telegram Login работает только на домене</span>
+        <small>Открой https://study.arvexo.ru после настройки BotFather /setdomain</small>
       </div>
     );
   }
