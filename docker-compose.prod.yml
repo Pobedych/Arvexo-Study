@@ -25,6 +25,10 @@ services:
       - "127.0.0.1:8101:8000"
     env_file:
       - .env
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:?PUBLIC_SITE_URL is required}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:?PUBLIC_API_URL is required}
     volumes:
       - ./data:/app/data:ro
       - ./uploads:/app/uploads

@@ -49,12 +49,12 @@ def set_session_cookie(response: Response, token: str) -> None:
 
 def oauth_redirect_uri(provider: str) -> str:
     settings = get_settings()
-    return f"{settings.public_api_url.rstrip('/')}/auth/{provider}/callback"
+    return f"{settings.public_api_origin()}/auth/{provider}/callback"
 
 
 def oauth_error_redirect(reason: str) -> RedirectResponse:
     settings = get_settings()
-    return RedirectResponse(f"{settings.public_site_url.rstrip('/')}/login?oauth_error={reason}", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(f"{settings.public_site_origin()}/login?oauth_error={reason}", status_code=status.HTTP_303_SEE_OTHER)
 
 
 def oauth_state_value(provider: str, mode: str, state: str) -> str:
@@ -90,7 +90,7 @@ def get_oauth_state_mode(request: Request, provider: str, state: str | None) -> 
 
 def login_redirect(user: User) -> RedirectResponse:
     settings = get_settings()
-    response = RedirectResponse(f"{settings.public_site_url.rstrip('/')}/dashboard", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(f"{settings.public_site_origin()}/dashboard", status_code=status.HTTP_303_SEE_OTHER)
     set_session_cookie(response, create_access_token(user))
     clear_oauth_state_cookie(response)
     return response
@@ -99,7 +99,7 @@ def login_redirect(user: User) -> RedirectResponse:
 def connect_redirect(provider: str) -> RedirectResponse:
     settings = get_settings()
     response = RedirectResponse(
-        f"{settings.public_site_url.rstrip('/')}/profile?connected={provider}",
+        f"{settings.public_site_origin()}/profile?connected={provider}",
         status_code=status.HTTP_303_SEE_OTHER,
     )
     clear_oauth_state_cookie(response)
@@ -109,7 +109,7 @@ def connect_redirect(provider: str) -> RedirectResponse:
 def identity_conflict_redirect(provider: str) -> RedirectResponse:
     settings = get_settings()
     response = RedirectResponse(
-        f"{settings.public_site_url.rstrip('/')}/profile?connect_error={provider}_already_linked",
+        f"{settings.public_site_origin()}/profile?connect_error={provider}_already_linked",
         status_code=status.HTTP_303_SEE_OTHER,
     )
     clear_oauth_state_cookie(response)
