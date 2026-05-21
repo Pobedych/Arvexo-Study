@@ -20,7 +20,7 @@ declare global {
   }
 }
 
-export function TelegramLoginButton() {
+export function TelegramLoginButton({ mode = "login" }: { mode?: "login" | "connect" }) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [message, setMessage] = useState("");
@@ -35,7 +35,8 @@ export function TelegramLoginButton() {
     window.onTelegramAuth = async (telegramUser: TelegramUser) => {
       setMessage("");
       try {
-        const response = await fetch(`${API_URL}/auth/telegram`, {
+        const endpoint = mode === "connect" ? "/auth/telegram/connect" : "/auth/telegram";
+        const response = await fetch(`${API_URL}${endpoint}`, {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -46,7 +47,7 @@ export function TelegramLoginButton() {
           throw new Error(response.status === 503 ? "Telegram вход не настроен на сервере." : "Не удалось войти через Telegram.");
         }
 
-        router.push("/dashboard");
+        router.push(mode === "connect" ? "/profile?connected=telegram" : "/dashboard");
         router.refresh();
       } catch (error) {
         setMessage(error instanceof Error ? error.message : "Не удалось войти через Telegram.");
@@ -56,7 +57,7 @@ export function TelegramLoginButton() {
     return () => {
       delete window.onTelegramAuth;
     };
-  }, [router]);
+  }, [mode, router]);
 
   useEffect(() => {
     if (!botUsername || isLocalHost || !containerRef.current) return;

@@ -1,6 +1,6 @@
 from datetime import datetime, time
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,7 @@ from app.models.task import Task, TaskAttempt
 from app.schemas.stats import RecentAttemptResponse, StatsResponse
 from app.services.ai_limits import get_daily_limit, get_remaining_ai_requests
 from app.services.auth import get_current_user
+from app.services.subscriptions import get_effective_plan
 
 router = APIRouter(prefix="/stats", tags=["statistics"])
 
@@ -16,10 +17,10 @@ router = APIRouter(prefix="/stats", tags=["statistics"])
 @router.get("/me", response_model=StatsResponse)
 def get_my_stats(
     request: Request,
-    plan: str = Query(default="free"),
     db: Session = Depends(get_db),
 ) -> StatsResponse:
     user = get_current_user(request, db)
+    plan = get_effective_plan(db, user)
     user_id = user.id
     attempts = db.execute(select(TaskAttempt).where(TaskAttempt.user_id == user_id)).scalars().all()
     total = len(attempts)

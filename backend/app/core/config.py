@@ -9,10 +9,16 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./arvexo_study.db"
     redis_url: str = "redis://localhost:6379/0"
     backend_cors_origins: str = "http://localhost:3001,http://127.0.0.1:3001"
+    public_site_url: str = "http://localhost:3001"
+    public_api_url: str = "http://localhost:8001"
     ai_provider: str = "stub"
     ai_model: str = "stub-hint-v1"
     telegram_bot_token: str = ""
     telegram_login_max_age_seconds: int = 60 * 60 * 24
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    yandex_client_id: str = ""
+    yandex_client_secret: str = ""
     jwt_secret: str = Field(default="change-me", min_length=8)
     access_token_expire_minutes: int = 60 * 24 * 7
 

@@ -84,7 +84,7 @@ export function TaskSolver() {
 
   async function loadAccountStats() {
     try {
-      const response = await fetch(`${API_URL}/stats/me?plan=free`, { credentials: "include" });
+      const response = await fetch(`${API_URL}/stats/me`, { credentials: "include" });
       if (!response.ok) return;
       setStats((await response.json()) as AccountStats);
     } catch {
@@ -139,7 +139,7 @@ export function TaskSolver() {
     setHintLoading(true);
     setError("");
     try {
-      const response = await fetch(`${API_URL}/tasks/${task.id}/hint?plan=free`, {
+      const response = await fetch(`${API_URL}/tasks/${task.id}/hint`, {
         method: "POST",
         credentials: "include",
       });

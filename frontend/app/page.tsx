@@ -1,5 +1,6 @@
 import { ArrowUpRight, BarChart3, BrainCircuit, CheckCircle2, ListChecks } from "lucide-react";
 import { HomeHero } from "@/components/HomeHero";
+import { SmartCtaLink } from "@/components/SmartCtaLink";
 
 const features = [
   {
@@ -73,7 +74,13 @@ export default function Home() {
             <a href="#features">Возможности</a>
             <a href="/dashboard">Кабинет</a>
           </nav>
-          <a className="primary-button header-cta" href="/register">Начать</a>
+          <SmartCtaLink
+            className="primary-button header-cta"
+            authedHref="/tasks"
+            guestHref="/register"
+            authedLabel="Задания"
+            guestLabel="Начать"
+          />
         </div>
       </header>
 

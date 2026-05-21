@@ -37,6 +37,37 @@ This repository starts with the first technical slice:
 
 Legal review for FIPI materials, payment provider, AI provider and email provider must be completed before production launch.
 
+## OAuth
+
+Google and Yandex OAuth are handled by the backend:
+
+- `GET /auth/google`
+- `GET /auth/google/callback`
+- `GET /auth/yandex`
+- `GET /auth/yandex/callback`
+
+Required environment variables:
+
+```env
+PUBLIC_SITE_URL=https://study.arvexo.ru
+PUBLIC_API_URL=https://api.study.arvexo.ru
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+YANDEX_CLIENT_ID=
+YANDEX_CLIENT_SECRET=
+```
+
+Local callback URLs for provider settings:
+
+- `http://localhost:8001/auth/google/callback`
+- `http://localhost:8001/auth/yandex/callback`
+
+Production callback URLs:
+
+- `https://api.study.arvexo.ru/auth/google/callback`
+- `https://api.study.arvexo.ru/auth/yandex/callback`
+
 ## CI/CD
 
 GitHub Actions workflow: `.github/workflows/ci-cd.yml`.

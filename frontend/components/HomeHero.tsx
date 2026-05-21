@@ -32,7 +32,7 @@ export function HomeHero() {
         if (!userResponse.ok) return;
         const userPayload = (await userResponse.json()) as User;
 
-        const statsResponse = await fetch(`${API_URL}/stats/me?plan=free`, { credentials: "include" });
+        const statsResponse = await fetch(`${API_URL}/stats/me`, { credentials: "include" });
         const statsPayload = statsResponse.ok ? ((await statsResponse.json()) as AccountStats) : null;
 
         if (alive) {
@@ -83,8 +83,8 @@ export function HomeHero() {
           <h1>{title}</h1>
           <p>{copy}</p>
           <div className="hero-actions">
-            <a className="primary-button" href={isAuthed ? "/dashboard" : "/register"}>
-              {isAuthed ? "Открыть кабинет" : "Начать бесплатно"} <ArrowRight size={18} />
+            <a className="primary-button" href={isAuthed ? "/tasks" : "/register"}>
+              {isAuthed ? "Открыть задания" : "Начать бесплатно"} <ArrowRight size={18} />
             </a>
             <a className="secondary-button" href={isAuthed ? `/tasks/${nextWeak}` : "#tasks"}>
               {isAuthed ? `Продолжить N${nextWeak}` : "Посмотреть задания"}

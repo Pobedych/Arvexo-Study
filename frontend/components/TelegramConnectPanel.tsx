@@ -23,7 +23,7 @@ export function TelegramConnectPanel() {
           После подключения бот сможет отправлять ежедневное задание, напоминания и краткую
           статистику по подготовке.
         </p>
-        <TelegramLoginButton />
+        <TelegramLoginButton mode="connect" />
         <div className="settings-grid">
           <span>Ежедневное задание</span>
           <span>Краткая статистика</span>

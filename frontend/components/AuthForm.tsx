@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/api";
 import { TelegramLoginButton } from "@/components/TelegramLoginButton";
@@ -21,6 +21,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
   const [loading, setLoading] = useState(false);
 
   const isRegister = mode === "register";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get("oauth_error");
+    if (oauthError) setError(readableOAuthError(oauthError));
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -112,8 +118,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       </button>
 
       <div className="oauth-grid">
-        <button type="button" disabled>Google скоро</button>
-        <button type="button" disabled>Яндекс скоро</button>
+        <a href={`${API_URL}/auth/google`}>Google</a>
+        <a href={`${API_URL}/auth/yandex`}>Яндекс</a>
       </div>
       <TelegramLoginButton />
     </form>
@@ -125,4 +131,14 @@ function readableError(detail: string | undefined, status: number): string {
   if (detail === "Invalid email or password") return "Неверный email или пароль.";
   if (status === 422) return "Проверь email и пароль. Пароль должен быть не короче 8 символов.";
   return detail ?? "Не удалось выполнить запрос.";
+}
+
+function readableOAuthError(error: string): string {
+  if (error === "google_not_configured") return "Google OAuth не настроен на сервере.";
+  if (error === "yandex_not_configured") return "Яндекс OAuth не настроен на сервере.";
+  if (error === "invalid_state") return "OAuth-сессия устарела. Попробуй войти ещё раз.";
+  if (error.endsWith("_email")) return "OAuth-провайдер не вернул email аккаунта.";
+  if (error.endsWith("_token")) return "Не удалось получить OAuth-токен. Проверь настройки приложения.";
+  if (error.endsWith("_denied")) return "Вход через OAuth был отменён.";
+  return "Не удалось войти через OAuth.";
 }

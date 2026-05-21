@@ -34,7 +34,7 @@ export function DashboardStats() {
 
     async function loadStats() {
       try {
-        const response = await fetch(`${API_URL}/stats/me?plan=free`, { credentials: "include" });
+        const response = await fetch(`${API_URL}/stats/me`, { credentials: "include" });
         if (!response.ok) throw new Error("Не удалось загрузить статистику аккаунта.");
         const payload = (await response.json()) as AccountStats;
         if (alive) setStats(payload);

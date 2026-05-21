@@ -63,7 +63,7 @@ export function TasksBrowser() {
         const payload = (await response.json()) as TaskListItem[];
         if (alive) setTasks(payload);
 
-        const statsResponse = await fetch(`${API_URL}/stats/me?plan=free`, { credentials: "include" });
+        const statsResponse = await fetch(`${API_URL}/stats/me`, { credentials: "include" });
         if (statsResponse.ok && alive) {
           setStats((await statsResponse.json()) as AccountStats);
         }

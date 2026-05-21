@@ -12,6 +12,7 @@ from app.services.ai_hints import build_stub_hint
 from app.services.ai_limits import get_remaining_ai_requests
 from app.services.answers import check_answer
 from app.services.auth import SESSION_COOKIE, decode_access_token, get_current_user
+from app.services.subscriptions import get_effective_plan
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -119,13 +120,13 @@ def get_hint(
     task_id: str,
     request: Request,
     db: Session = Depends(get_db),
-    plan: str = Query(default="free"),
 ) -> HintResponse:
     user = get_current_user(request, db)
     task = db.get(Task, task_id)
     if not task or task.status != "active":
         raise HTTPException(status_code=404, detail="Task not found")
 
+    plan = get_effective_plan(db, user)
     remaining = get_remaining_ai_requests(db, user.id, plan)
     if remaining <= 0:
         raise HTTPException(status_code=429, detail="AI daily limit exceeded")

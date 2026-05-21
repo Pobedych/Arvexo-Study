@@ -1324,13 +1324,23 @@ button {
   gap: 8px;
 }
 
-.oauth-grid button {
+.oauth-grid button,
+.oauth-grid a {
   min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: #ffffff;
   color: var(--soft);
   font-weight: 760;
+}
+
+.oauth-grid a:hover {
+  border-color: rgba(139, 79, 220, 0.24);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .telegram-login-wrap {
@@ -1485,6 +1495,62 @@ button {
   color: var(--red);
 }
 
+.connected-auth {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff 0%, #f7f2ff 100%);
+  padding: 18px;
+}
+
+.connected-auth h3 {
+  margin: 5px 0 0;
+}
+
+.connected-auth-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.auth-provider-card {
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--text);
+  padding: 14px;
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  text-decoration: none;
+  font-weight: 840;
+  position: relative;
+}
+
+.auth-provider-card small {
+  color: var(--muted);
+  font-weight: 760;
+}
+
+.auth-provider-card svg {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  color: var(--accent);
+}
+
+.auth-provider-card.connected {
+  border-color: rgba(32, 180, 134, 0.30);
+  background: rgba(32, 180, 134, 0.08);
+}
+
+.auth-provider-card.connected small {
+  color: var(--green);
+}
+
 .profile-actions {
   grid-column: 1 / -1;
   display: flex;
@@ -1495,6 +1561,62 @@ button {
 
 .profile-logout {
   width: fit-content;
+}
+
+.danger-zone {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(232, 93, 117, 0.22);
+  border-radius: 18px;
+  background: rgba(232, 93, 117, 0.06);
+  padding: 18px;
+}
+
+.danger-zone h3 {
+  margin: 5px 0 8px;
+}
+
+.danger-zone p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.danger-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-weight: 780;
+}
+
+.danger-confirm input {
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
+  accent-color: var(--red);
+}
+
+.danger-button {
+  width: fit-content;
+  min-height: 48px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--red);
+  color: #ffffff;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.danger-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 @media (max-width: 920px) {
@@ -1516,6 +1638,10 @@ button {
 
   .task-overview-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .connected-auth-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .dashboard-cards,
@@ -1590,6 +1716,7 @@ button {
   .dashboard-cards,
   .feature-grid,
   .pricing-section,
+  .connected-auth-grid,
   .task-number-grid {
     grid-template-columns: 1fr;
   }

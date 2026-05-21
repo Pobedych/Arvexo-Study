@@ -31,6 +31,7 @@ class UserRead(BaseModel):
     role: str
     avatar_url: str | None = None
     telegram_id: str | None = None
+    auth_providers: list[str] = Field(default_factory=list)
 
     model_config = {"from_attributes": True}
 
