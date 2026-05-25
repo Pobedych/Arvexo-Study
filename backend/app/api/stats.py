@@ -1,10 +1,9 @@
-from datetime import datetime, time
-
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
+from app.core.time import utc_day_start
 from app.models.task import Task, TaskAttempt
 from app.schemas.stats import RecentAttemptResponse, StatsResponse
 from app.services.ai_limits import get_daily_limit, get_remaining_ai_requests
@@ -26,7 +25,7 @@ def get_my_stats(
     total = len(attempts)
     correct = sum(1 for attempt in attempts if attempt.is_correct)
     wrong = total - correct
-    today_start = datetime.combine(datetime.utcnow().date(), time.min)
+    today_start = utc_day_start()
     solved_today = int(
         db.execute(
             select(func.count(TaskAttempt.id)).where(

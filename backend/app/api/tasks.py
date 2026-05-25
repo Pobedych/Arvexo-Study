@@ -4,12 +4,11 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
-from app.models.ai_usage import AIUsage
 from app.models.task import Task, TaskAttempt
 from app.models.user import User
 from app.schemas.task import HintResponse, SubmitAnswerRequest, SubmitAnswerResponse, TaskListItem, TaskRead
 from app.services.ai_hints import build_stub_hint
-from app.services.ai_limits import get_remaining_ai_requests
+from app.services.ai_limits import reserve_ai_request
 from app.services.answers import check_answer
 from app.services.auth import SESSION_COOKIE, decode_access_token, get_current_user
 from app.services.subscriptions import get_effective_plan
@@ -22,10 +21,9 @@ def list_tasks(
     request: Request,
     exam_number: int | None = Query(default=None, ge=1, le=18),
     difficulty: str | None = None,
-    status: str = "active",
     db: Session = Depends(get_db),
 ) -> list[TaskListItem]:
-    stmt = select(Task).where(Task.status == status).order_by(Task.exam_number, Task.created_at)
+    stmt = select(Task).where(Task.status == "active").order_by(Task.exam_number, Task.created_at)
     if exam_number is not None:
         stmt = stmt.where(Task.exam_number == exam_number)
     if difficulty:
@@ -78,7 +76,7 @@ def get_optional_user_id(request: Request, db: Session) -> str | None:
 @router.get("/{task_id}", response_model=TaskRead)
 def get_task(task_id: str, db: Session = Depends(get_db)) -> Task:
     task = db.get(Task, task_id)
-    if not task or task.status == "archived":
+    if not task or task.status != "active":
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
@@ -127,21 +125,18 @@ def get_hint(
         raise HTTPException(status_code=404, detail="Task not found")
 
     plan = get_effective_plan(db, user)
-    remaining = get_remaining_ai_requests(db, user.id, plan)
-    if remaining <= 0:
-        raise HTTPException(status_code=429, detail="AI daily limit exceeded")
-
     settings = get_settings()
-    db.add(
-        AIUsage(
-            user_id=user.id,
-            task_id=task.id,
-            provider=settings.ai_provider,
-            model=settings.ai_model,
-            prompt_type="task_hint",
-            status="success",
-        )
+    remaining = reserve_ai_request(
+        db,
+        user.id,
+        plan,
+        task_id=task.id,
+        provider=settings.ai_provider,
+        model=settings.ai_model,
     )
+    if remaining is None:
+        db.rollback()
+        raise HTTPException(status_code=429, detail="AI daily limit exceeded")
     db.commit()
 
-    return HintResponse(hint=build_stub_hint(task), remaining_today=remaining - 1)
+    return HintResponse(hint=build_stub_hint(task), remaining_today=remaining)

@@ -10,9 +10,6 @@ type Task = {
   exam_number: number;
   topic: string;
   condition: string;
-  correct_answer: string;
-  accepted_answers: string[];
-  explanation: string | null;
   difficulty: string;
   status: string;
 };

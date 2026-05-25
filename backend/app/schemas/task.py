@@ -3,23 +3,26 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 
-class TaskBase(BaseModel):
+class TaskPublicBase(BaseModel):
     exam_number: int = Field(ge=1, le=18)
     topic: str
     condition: str
-    correct_answer: str
-    accepted_answers: list[str] = []
-    explanation: str | None = None
     difficulty: str = "medium"
     source: str = "manual"
     status: str = "active"
+
+
+class TaskBase(TaskPublicBase):
+    correct_answer: str
+    accepted_answers: list[str] = []
+    explanation: str | None = None
 
 
 class TaskCreate(TaskBase):
     pass
 
 
-class TaskRead(TaskBase):
+class TaskRead(TaskPublicBase):
     id: str
     created_at: datetime
     updated_at: datetime

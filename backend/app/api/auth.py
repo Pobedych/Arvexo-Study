@@ -2,7 +2,6 @@ import hashlib
 import hmac
 import secrets
 import time
-from datetime import datetime
 from urllib.parse import urlencode
 
 import httpx
@@ -12,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.database import get_db
+from app.core.time import utc_now
 from app.models.ai_usage import AIUsage
 from app.models.auth_identity import AuthIdentity
 from app.models.payment import Payment
@@ -32,6 +32,10 @@ from app.services.auth import (
 router = APIRouter(prefix="/auth", tags=["auth"])
 OAUTH_STATE_COOKIE = "arvexo_oauth_state"
 OAUTH_STATE_MAX_AGE = 10 * 60
+
+
+class OAuthEmailNotVerified(Exception):
+    pass
 
 
 def set_session_cookie(response: Response, token: str) -> None:
@@ -150,6 +154,16 @@ def attach_identity(
     return identity
 
 
+def is_oauth_email_verified(profile: dict, *keys: str) -> bool:
+    for key in keys:
+        value = profile.get(key)
+        if value is True:
+            return True
+        if isinstance(value, str) and value.lower() == "true":
+            return True
+    return False
+
+
 def verify_telegram_payload(payload: TelegramAuthRequest) -> str:
     settings = get_settings()
     if not settings.telegram_bot_token:
@@ -176,15 +190,20 @@ def upsert_oauth_user(
     name: str,
     provider: str,
     provider_user_id: str,
+    email_verified: bool,
     avatar_url: str | None = None,
     last_name: str | None = None,
 ) -> User:
     identity = get_identity(db, provider, provider_user_id)
-    user = identity.user if identity else get_user_by_email(db, email)
+    user = identity.user if identity else None
+    if not user:
+        user = get_user_by_email(db, email)
+        if user and not email_verified:
+            raise OAuthEmailNotVerified
     if user:
         if not user.is_active or user.is_banned:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is blocked")
-        user.last_login_at = datetime.utcnow()
+        user.last_login_at = utc_now()
         if avatar_url and not user.avatar_url:
             user.avatar_url = avatar_url
         if last_name and not user.last_name:
@@ -202,7 +221,7 @@ def upsert_oauth_user(
         password_hash=None,
         auth_provider=provider,
         role="student",
-        last_login_at=datetime.utcnow(),
+        last_login_at=utc_now(),
     )
     db.add(user)
     db.flush()
@@ -220,11 +239,11 @@ def register(payload: RegisterRequest, response: Response, db: Session = Depends
 
     user = User(
         email=email,
-        name=payload.name.strip(),
+        name=payload.name,
         password_hash=hash_password(payload.password),
         auth_provider="email",
         role="student",
-        last_login_at=datetime.utcnow(),
+        last_login_at=utc_now(),
     )
     db.add(user)
     db.commit()
@@ -242,7 +261,7 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
     if not user.is_active or user.is_banned:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User is blocked")
 
-    user.last_login_at = datetime.utcnow()
+    user.last_login_at = utc_now()
     db.commit()
     db.refresh(user)
 
@@ -337,6 +356,7 @@ def google_oauth_callback(
     email = str(profile.get("email") or "").strip().lower()
     if not email:
         return oauth_error_redirect("google_email")
+    email_verified = is_oauth_email_verified(profile, "email_verified", "verified_email")
     provider_user_id = str(profile.get("sub") or "").strip()
     if not provider_user_id:
         return oauth_error_redirect("google_token")
@@ -356,15 +376,19 @@ def google_oauth_callback(
         db.commit()
         return connect_redirect("google")
 
-    user = upsert_oauth_user(
-        db,
-        email=email,
-        name=str(profile.get("given_name") or profile.get("name") or email.split("@")[0]),
-        last_name=profile.get("family_name"),
-        avatar_url=profile.get("picture"),
-        provider="google",
-        provider_user_id=provider_user_id,
-    )
+    try:
+        user = upsert_oauth_user(
+            db,
+            email=email,
+            name=str(profile.get("given_name") or profile.get("name") or email.split("@")[0]),
+            last_name=profile.get("family_name"),
+            avatar_url=profile.get("picture"),
+            provider="google",
+            provider_user_id=provider_user_id,
+            email_verified=email_verified,
+        )
+    except OAuthEmailNotVerified:
+        return oauth_error_redirect("google_email_unverified")
     return login_redirect(user)
 
 
@@ -455,6 +479,7 @@ def yandex_oauth_callback(
         email = str(emails[0]).strip().lower() if emails else ""
     if not email:
         return oauth_error_redirect("yandex_email")
+    email_verified = is_oauth_email_verified(profile, "email_verified", "verified_email", "is_email_verified")
     provider_user_id = str(profile.get("id") or "").strip()
     if not provider_user_id:
         return oauth_error_redirect("yandex_token")
@@ -472,15 +497,19 @@ def yandex_oauth_callback(
         db.commit()
         return connect_redirect("yandex")
 
-    user = upsert_oauth_user(
-        db,
-        email=email,
-        name=str(profile.get("first_name") or profile.get("display_name") or profile.get("login") or email.split("@")[0]),
-        last_name=profile.get("last_name"),
-        avatar_url=None,
-        provider="yandex",
-        provider_user_id=provider_user_id,
-    )
+    try:
+        user = upsert_oauth_user(
+            db,
+            email=email,
+            name=str(profile.get("first_name") or profile.get("display_name") or profile.get("login") or email.split("@")[0]),
+            last_name=profile.get("last_name"),
+            avatar_url=None,
+            provider="yandex",
+            provider_user_id=provider_user_id,
+            email_verified=email_verified,
+        )
+    except OAuthEmailNotVerified:
+        return oauth_error_redirect("yandex_email_unverified")
     return login_redirect(user)
 
 
@@ -501,13 +530,13 @@ def telegram_login(payload: TelegramAuthRequest, response: Response, db: Session
             telegram_id=telegram_id,
             auth_provider="telegram",
             role="student",
-            last_login_at=datetime.utcnow(),
+            last_login_at=utc_now(),
         )
         db.add(user)
         db.flush()
         attach_identity(db, user, provider="telegram", provider_user_id=telegram_id, provider_email=None)
     else:
-        user.last_login_at = datetime.utcnow()
+        user.last_login_at = utc_now()
         if payload.photo_url:
             user.avatar_url = payload.photo_url
         if not user.telegram_id:
@@ -556,7 +585,7 @@ def me(request: Request, db: Session = Depends(get_db)) -> User:
 @router.patch("/me", response_model=UserRead)
 def update_me(payload: UserUpdateRequest, request: Request, db: Session = Depends(get_db)) -> User:
     user = get_current_user(request, db)
-    user.name = payload.name.strip()
+    user.name = payload.name
     user.last_name = payload.last_name.strip() if payload.last_name and payload.last_name.strip() else None
     user.phone = payload.phone.strip() if payload.phone and payload.phone.strip() else None
     db.commit()

@@ -5,6 +5,7 @@ from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, JSON, String, Tex
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
+from app.core.time import utc_now
 
 
 class Topic(Base):
@@ -14,8 +15,8 @@ class Topic(Base):
     title: Mapped[str] = mapped_column(String(160), unique=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     exam_numbers: Mapped[list[int]] = mapped_column(JSON, default=list)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
 
 class Task(Base):
@@ -32,8 +33,8 @@ class Task(Base):
     difficulty: Mapped[str] = mapped_column(String(32), default="medium", index=True)
     source: Mapped[str] = mapped_column(String(160), default="manual")
     status: Mapped[str] = mapped_column(String(32), default="draft", index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
     attempts: Mapped[list["TaskAttempt"]] = relationship(back_populates="task")
 
@@ -48,6 +49,6 @@ class TaskAttempt(Base):
     normalized_answer: Mapped[str] = mapped_column(String(512))
     is_correct: Mapped[bool] = mapped_column(Boolean)
     time_spent_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
 
     task: Mapped[Task] = relationship(back_populates="attempts")

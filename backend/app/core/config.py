@@ -1,6 +1,6 @@
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -25,6 +25,18 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24 * 7
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @model_validator(mode="after")
+    def validate_production_database(self) -> "Settings":
+        if self.app_env != "production":
+            return self
+
+        database_url = self.database_url.strip()
+        if not database_url or database_url == "sqlite:///./arvexo_study.db":
+            raise ValueError("DATABASE_URL must be set explicitly in production")
+        if database_url.startswith("sqlite"):
+            raise ValueError("DATABASE_URL must not use SQLite in production")
+        return self
 
     @property
     def cors_origins(self) -> list[str]:
