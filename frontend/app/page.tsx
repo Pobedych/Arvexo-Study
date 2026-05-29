@@ -20,6 +20,26 @@ const features = [
   },
 ];
 
+const studentBenefits = [
+  "Находит слабые темы по реальным попыткам",
+  "Даёт подсказку к правилу, а не готовый ответ",
+  "Помогает регулярно возвращаться к сложным номерам",
+];
+
+const teacherBenefits = [
+  "Видимость прогресса учеников и класса",
+  "Задания и повторение по темам",
+  "Меньше ручной проверки типовых ошибок",
+];
+
+const subjects = ["Русский язык", "Математика", "Информатика", "Английский", "Обществознание", "ОГЭ-направления"];
+
+const faqItems = [
+  ["Это уже готовая платформа?", "Нет. Arvexo Study находится в MVP-разработке, часть функций доступна как ранний продукт."],
+  ["AI будет решать за ученика?", "Нет. Подсказки должны объяснять правило, направление проверки и типовую ошибку без раскрытия готового ответа."],
+  ["Какие предметы будут первыми?", "Сейчас фокус на ЕГЭ по русскому. Остальные предметы показаны как планируемые направления."],
+];
+
 const examNumbers = Array.from({ length: 18 }, (_, index) => index + 1);
 
 const footerGroups = [
@@ -37,7 +57,7 @@ const footerGroups = [
       { label: "Задания 1-18", href: "/tasks" },
       { label: "Личный кабинет", href: "/dashboard" },
       { label: "Telegram-бот", href: "/telegram" },
-      { label: "Pro-подписка", href: "#pricing" },
+      { label: "Ранний доступ", href: "#pricing" },
     ],
   },
   {
@@ -70,16 +90,18 @@ export default function Home() {
             <span className="logo-text">Arvexo Study</span>
           </a>
           <nav className="desktop-nav">
-            <a href="#tasks">Задания</a>
             <a href="#features">Возможности</a>
-            <a href="/dashboard">Кабинет</a>
+            <a href="#subjects">Предметы</a>
+            <a href="#students">Для учеников</a>
+            <a href="#teachers">Для преподавателей</a>
+            <a href="https://account.arvexo.ru">Войти</a>
           </nav>
           <SmartCtaLink
             className="primary-button header-cta"
             authedHref="/tasks"
-            guestHref="/register"
+            guestHref="https://account.arvexo.ru"
             authedLabel="Задания"
-            guestLabel="Начать"
+            guestLabel="Ранний доступ"
           />
         </div>
       </header>
@@ -89,7 +111,7 @@ export default function Home() {
       <section id="features" className="page-section">
         <div className="section-heading">
           <p className="eyebrow">Возможности</p>
-          <h2>Всё основное для регулярной подготовки</h2>
+          <h2>Практические сценарии для регулярной подготовки</h2>
         </div>
         <div className="feature-grid">
           {features.map((feature) => (
@@ -98,6 +120,47 @@ export default function Home() {
               <h3>{feature.title}</h3>
               <p>{feature.text}</p>
             </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="students" className="page-section split-section">
+        <div className="section-heading align-left">
+          <p className="eyebrow">Для учеников</p>
+          <h2>Персональная траектория без громких обещаний про баллы</h2>
+          <p>Study помогает видеть слабые темы, возвращаться к ошибкам и тренироваться регулярнее.</p>
+        </div>
+        <div className="feature-grid compact-grid">
+          {studentBenefits.map((item) => (
+            <article className="feature-card" key={item}><h3>{item}</h3></article>
+          ))}
+        </div>
+      </section>
+
+      <section id="teachers" className="page-section split-section">
+        <div className="section-heading align-left">
+          <p className="eyebrow">Для преподавателей</p>
+          <h2>Классы, задания и статистика как следующий слой продукта</h2>
+          <p>Учительский сценарий строится вокруг экономии времени на повторении и понятного прогресса по темам.</p>
+        </div>
+        <div className="feature-grid compact-grid">
+          {teacherBenefits.map((item) => (
+            <article className="feature-card" key={item}><h3>{item}</h3></article>
+          ))}
+        </div>
+      </section>
+
+      <section id="subjects" className="page-section subjects-section">
+        <div className="section-heading">
+          <p className="eyebrow">Предметы</p>
+          <h2>Фокус на ЕГЭ по русскому, расширение поэтапно</h2>
+        </div>
+        <div className="task-number-grid subject-grid">
+          {subjects.map((subject, index) => (
+            <span key={subject}>
+              <strong>{subject}</strong>
+              <small>{index === 0 ? "MVP" : "Планируется"}</small>
+            </span>
           ))}
         </div>
       </section>
@@ -117,25 +180,40 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pricing" className="page-section pricing-section">
+      <section id="pricing" className="page-section pricing-section early-access-section">
         <article className="plan">
-          <h3>Free</h3>
-          <p className="price">0 ₽</p>
+          <h3>Ранний доступ</h3>
+          <p className="price">MVP</p>
           <ul>
             <li><CheckCircle2 size={18} /> Задания 1-18</li>
             <li><CheckCircle2 size={18} /> Базовая статистика</li>
-            <li><CheckCircle2 size={18} /> 5 AI-запросов в день</li>
+            <li><CheckCircle2 size={18} /> Ограниченные AI-подсказки</li>
           </ul>
         </article>
         <article className="plan highlighted">
-          <h3>Pro</h3>
-          <p className="price">399 ₽/мес</p>
+          <h3>Account и подписки</h3>
+          <p className="price">в планах</p>
           <ul>
-            <li><CheckCircle2 size={18} /> 150 AI-запросов в день</li>
-            <li><CheckCircle2 size={18} /> Расширенная статистика</li>
-            <li><CheckCircle2 size={18} /> Без рекламы</li>
+            <li><CheckCircle2 size={18} /> Единый вход Arvexo Account</li>
+            <li><CheckCircle2 size={18} /> Подписки и доступы без фейковых платежей</li>
+            <li><CheckCircle2 size={18} /> Связка с Telegram-профилем</li>
           </ul>
         </article>
+      </section>
+
+      <section className="page-section faq-section">
+        <div className="section-heading">
+          <p className="eyebrow">FAQ</p>
+          <h2>Честно о статусе продукта</h2>
+        </div>
+        <div className="faq-list">
+          {faqItems.map(([question, answer]) => (
+            <details key={question}>
+              <summary>{question}</summary>
+              <p>{answer}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <footer className="site-footer">
@@ -144,7 +222,7 @@ export default function Home() {
             <img src="/images/arvexo-mark-light-bg.png" alt="" className="site-logo-mark" />
             <span className="logo-text">Arvexo Study</span>
           </a>
-          <p>Arvexo Study — подготовка к ЕГЭ по русскому с заданиями, статистикой и AI-подсказками.</p>
+          <p>Arvexo Study — AI-тренажёр для ЕГЭ и ОГЭ с заданиями, статистикой, подсказками и ранним доступом.</p>
           <div className="footer-contact">
             <span>Questions, partnerships or product access?</span>
             <a href="https://arvexo.ru/contacts" target="_blank" rel="noreferrer">

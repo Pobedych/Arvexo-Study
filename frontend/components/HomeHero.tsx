@@ -62,10 +62,10 @@ export function HomeHero() {
   const nextWeak = weakNumbers[0] ?? 5;
   const title = isAuthed
     ? `${user?.name}, продолжай подготовку`
-    : "Готовься к ЕГЭ по русскому с AI-помощником";
+    : "AI-тренажёр для ЕГЭ и ОГЭ";
   const copy = isAuthed
     ? "Открой задания, продолжи тренировку и следи за реальной статистикой аккаунта."
-    : "Решай задания 1-18, получай подсказки без готового ответа и смотри, где уже есть прогресс, а какие темы стоит подтянуть.";
+    : "Адаптивные задания, AI-подсказки, разбор ошибок и персональная траектория подготовки для учеников и преподавателей.";
 
   const gridClasses = useMemo(() => {
     return examNumbers.map((number) => {
@@ -79,15 +79,15 @@ export function HomeHero() {
     <section className="hero-wrap">
       <div className="hero-card">
         <div className="hero-copy">
-          <p className="eyebrow">{isAuthed ? "Твой прогресс" : "ЕГЭ по русскому языку"}</p>
+          <p className="eyebrow">{isAuthed ? "Твой прогресс" : "Arvexo Study · ранний доступ"}</p>
           <h1>{title}</h1>
           <p>{copy}</p>
           <div className="hero-actions">
-            <a className="primary-button" href={isAuthed ? "/tasks" : "/register"}>
-              {isAuthed ? "Открыть задания" : "Начать бесплатно"} <ArrowRight size={18} />
+            <a className="primary-button" href={isAuthed ? "/tasks" : "https://account.arvexo.ru"}>
+              {isAuthed ? "Открыть задания" : "Попробовать тренажёр"} <ArrowRight size={18} />
             </a>
             <a className="secondary-button" href={isAuthed ? `/tasks/${nextWeak}` : "#tasks"}>
-              {isAuthed ? `Продолжить N${nextWeak}` : "Посмотреть задания"}
+              {isAuthed ? `Продолжить N${nextWeak}` : "Как это работает"}
             </a>
           </div>
         </div>
@@ -106,7 +106,7 @@ export function HomeHero() {
           </div>
           <div className="mockup-progress">
             <div>
-              <span>{isAuthed ? "Точность" : "Прогресс"}</span>
+              <span>{isAuthed ? "Точность" : "Демо-прогресс"}</span>
               <strong>{accuracy}%</strong>
             </div>
             <div className="progress-bar">
@@ -129,7 +129,7 @@ export function HomeHero() {
             </p>
           </div>
           <div className="mockup-stats">
-            <span>Решено сегодня: {stats?.solved_today ?? (isAuthed ? 0 : 12)}</span>
+            <span>{isAuthed ? `Решено сегодня: ${stats?.solved_today ?? 0}` : "Демо без обещания баллов"}</span>
             <span>
               {shownWeakNumbers.length > 0 ? `Слабые: ${shownWeakNumbers.join(", ")}` : "Слабые: пока нет"}
             </span>

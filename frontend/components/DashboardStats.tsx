@@ -73,7 +73,7 @@ export function DashboardStats() {
         <p className="eyebrow">Статистика</p>
         <h2>Нужно войти в аккаунт</h2>
         <p className="panel-copy">{error || "После входа здесь появятся реальные решения и AI-лимиты."}</p>
-        <a className="primary-button" href="/login">Войти</a>
+        <a className="primary-button" href="https://account.arvexo.ru">Войти</a>
       </div>
     );
   }

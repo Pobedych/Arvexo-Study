@@ -11,7 +11,7 @@ export default function ProfilePage() {
             <p className="eyebrow">Профиль</p>
             <h1>Данные ученика</h1>
           </div>
-          <a className="secondary-button" href="/login">Войти заново</a>
+          <a className="secondary-button" href="https://account.arvexo.ru">Войти заново</a>
         </div>
 
         <ProfileForm />
